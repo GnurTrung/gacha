@@ -11,27 +11,29 @@ class Item extends window.slotGame.Container {
   countUpOptions = {
     useEasing: true, // toggle easing
     useGrouping: true, // 1,000,000 vs 1000000
-    separator: ",", // character to use as a separator
-    decimal: ".", // character to use as a decimal
+    separator: ',', // character to use as a separator
+    decimal: '.', // character to use as a decimal
   };
   eggs = [];
   eggsPositions = [
     { x: 0, y: 120 },
-    // { x: 120, y: 120 },
-    // { x: -120, y: 120 },
-    // { x: -55, y: 120 },
-    // { x: 40, y: 120 },
-    // { x: 0, y: 60 },
-    // { x: 40, y: 60 },
-    // { x: -75, y: 80 },
-    // { x: 75, y: 80 },
-    // { x: -60, y: 50 },
+    { x: 120, y: 120 },
+    { x: -120, y: 120 },
+    { x: -55, y: 120 },
+    { x: 40, y: 120 },
+    { x: 0, y: 60 },
+    { x: 40, y: 60 },
+    { x: -75, y: 80 },
+    { x: 75, y: 80 },
+    { x: -60, y: 50 },
+    { x: -120, y: 50 },
+    { x: 120, y: 50 },
   ];
 
   constructor(options) {
     super();
-    this.x = window.innerWidth / 2;
-    this.y = 400;
+    this.x = 100;
+    this.y = 100;
     this.scale.x = 0.8;
     this.scale.y = 0.8;
     this.renderBackground();
@@ -55,9 +57,9 @@ class Item extends window.slotGame.Container {
     );
     this.closeButton.anchor.set(0.5);
     this.closeButton.position.set(450, -450);
-    this.closeButton.eventMode = "static";
-    this.closeButton.cursor = "pointer";
-    this.closeButton.on("pointerdown", onButtonDown);
+    this.closeButton.eventMode = 'static';
+    this.closeButton.cursor = 'pointer';
+    this.closeButton.on('pointerdown', onButtonDown);
     function onButtonDown() {
       AppSL && AppSL.close && AppSL.close();
     }
@@ -90,7 +92,7 @@ class Item extends window.slotGame.Container {
     this.addChild(buttonP);
   }
 
-  onStartSpin = async () => {
+  onStartSpin = async (turn, day) => {
     let i = 1;
     let effects = [];
     const duration = 0.07;
@@ -110,7 +112,7 @@ class Item extends window.slotGame.Container {
       let y = egg.y;
       const tl = gsap.timeline({ repeat: -1, delay: -i++ * 0.0613 });
       tl.to(egg, {
-        y: "+=" + yTo,
+        y: '+=' + yTo,
         duration,
         rotatation: `${rotate}deg`,
         ease: `rough({strength: 1, points: 20, template: Power0.easeOut, taper: none, randomize: true,clamp: true})`,
@@ -125,14 +127,14 @@ class Item extends window.slotGame.Container {
     const tl2 = gsap.timeline({ repeat: -1, delay: 0 });
 
     tl2.to(bgGame.bg, {
-      x: "-=" + yTo,
+      x: '-=' + yTo,
       duration,
       rotateZ: rotate,
       ease: `rough({strength: 1, points: 20, template: Power0.easeOut, taper: none, randomize: true,clamp: true})`,
     });
-    const res = await AppSL.game.onSpinComplete();
-    console.log(res, "000");
+    const res = await AppSL.game.spin(turn, day);
     await delay(2000);
+
     for (let effect of effects) {
       tl2.pause();
       effect.pause();
@@ -150,15 +152,16 @@ class Item extends window.slotGame.Container {
         });
       }
 
-      this.prizeEgg.visible = true;
-      // await delay(200);
-      gsap.to(bgGame.prizeEgg, {
-        y: "+=10",
-        duration: 1,
-        // rotateZ: rotate,
-        ease: `rough({strength: 1, points: 20, template: Power0.easeOut, taper: none, randomize: true,clamp: true})`,
-      });
+      if (res?.length > 0) {
+        this.prizeEgg.visible = true;
+        gsap.to(bgGame.prizeEgg, {
+          y: '+=10',
+          duration: 1,
+          ease: `rough({strength: 1, points: 20, template: Power0.easeOut, taper: none, randomize: true,clamp: true})`,
+        });
+      }
     }
+    return res;
   };
 
   onEndSpin() {

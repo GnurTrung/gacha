@@ -10,7 +10,7 @@ window.slotGame = (window.slotGame || {});
             if (!AppSL.game)
                 AppSL.game = new gameScope.Game();
             else 
-                AppSL.game.getAccountInfo()
+                // AppSL.game.getAccountInfo()
             document.getElementById('slotmachine').style.display = 'block';
         } else {
             setTimeout(() => {
